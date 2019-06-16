@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
 import fetch from 'isomorphic-fetch';
-
 import { summaryDonations } from './helpers';
+import Card from './components/Card/index';
+import Payment from './components/Payment';
+import styled from 'styled-components';
 
-
-const Card = styled.div`
-  margin: 10px;
-  border: 1px solid #ccc;
+const CardContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
 `;
 
 export default connect((state) => state)(
@@ -43,22 +44,17 @@ export default connect((state) => state)(
       const self = this;
       const cards = this.state.charities.map(function(item, i) {
         const payments = [10, 20, 50, 100, 500].map((amount, j) => (
-          <label key={j}>
-            <input
-              type="radio"
-              name="payment"
-              onClick={function() {
-                self.setState({ selectedAmount: amount })
-              }} /> {amount}
-          </label>
+          <Payment key={j} amount={amount} selectAmount={(selected) => self.setState({ selectedAmount: selected })} />
         ));
 
         return (
-          <Card key={i}>
-            <p>{item.name}</p>
-            {payments}
-            <button onClick={handlePay.call(self, item.id, self.state.selectedAmount, item.currency)}>Pay</button>
-          </Card>
+          <Card
+            key={i}
+            item={item}
+            handlePay={handlePay}
+            selectedAmount={self.state.selectedAmount}
+            payments={payments}
+          />
         );
       });
 
@@ -74,10 +70,12 @@ export default connect((state) => state)(
 
       return (
         <div>
-          <h1>Tamboon React</h1>
+          <h1>Omise Tamboon React</h1>
           <p>All donations: {donate}</p>
           <p style={style}>{message}</p>
-          {cards}
+          <CardContainer>
+            {cards}
+          </CardContainer>
         </div>
       );
     }
